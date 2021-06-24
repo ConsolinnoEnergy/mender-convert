@@ -1,5 +1,14 @@
 [![Build Status](https://gitlab.com/Northern.tech/Mender/mender-convert/badges/next/pipeline.svg)](https://gitlab.com/Northern.tech/Mender/mender-convert/pipelines)
 
+
+
+# Consolinno Adjustments
+
+
+prebuilt_uboot folder contains customized mender-uboot generated with :
+[Consolinno Mender uboot](https://github.com/ConsolinnoEnergy/uboot-mender/tree/lpiuboot) >> [Consolinno Mender Integration file creator](https://github.com/ConsolinnoEnergy/mender-convert-integration-scripts/tree/rpiubootpatch)
+
+
 # mender-convert
 
 Mender is an open source over-the-air (OTA) software updater for embedded Linux
