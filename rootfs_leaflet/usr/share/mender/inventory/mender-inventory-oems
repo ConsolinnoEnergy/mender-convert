@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# @file mender-inventory-oems
+# @author A.Pietsch <a.pietsch@consolinno.de>
+# @brief 
+# @version 0.1
+# @date 2021-07-01
+# 
+# @copyright Copyright (c) 2021 Consolinno Energy GmbH
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# This script collects openEMS Inventory Data for Mender.io  
+
+# get Openems Version
+echo OemsVersion=`sudo apt list --installed | grep openems | grep -o "openems-.*[0-9]"`
+
+# get Openems Project Tag
+echo OemsProject="not implemented yet"
