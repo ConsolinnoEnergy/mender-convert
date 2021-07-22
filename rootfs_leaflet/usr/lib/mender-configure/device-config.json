@@ -1,0 +1,7 @@
+{
+    "mbslocation": "not_set",
+    "mbsname": "not_set",
+    "mbsip": "0.0.0.0",
+    "mbsport": "1502",
+    "mbsmaxcon" : "5"
+}
