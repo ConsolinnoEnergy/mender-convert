@@ -70,6 +70,7 @@ function trap_exit() {
         log_error "mender-convert failed"
         [ -e ${MENDER_CONVERT_LOG_FILE} ] && tac ${MENDER_CONVERT_LOG_FILE} | sed '/DEBUG/q' | tac | sed 's/Running/When running/'
         log_error "mender-convert exit code: ${EXIT_CODE}"
+        exit 1
     fi
     sudo rm -rf work/*
 }
