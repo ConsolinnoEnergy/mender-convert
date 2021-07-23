@@ -6,4 +6,4 @@ mender_local_config
 *.html
 logs/convert.log*
 work*
-mender.conf
+
