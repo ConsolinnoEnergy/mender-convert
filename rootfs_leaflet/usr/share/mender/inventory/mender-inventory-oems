@@ -24,6 +24,12 @@
 # This script collects openEMS Inventory Data for Mender.io  
 
 # get Openems Version
+OEMSVERSION=`sudo apt list --installed | grep openems | grep -o "openems-.*[0-9]"`
+
+
+if [[ -z ${OEMSVERSION} ]]; then
+    OEMSVERION="not installed"
+fi
 echo OemsVersion=`sudo apt list --installed | grep openems | grep -o "openems-.*[0-9]"`
 
 # get Openems Project Tag
