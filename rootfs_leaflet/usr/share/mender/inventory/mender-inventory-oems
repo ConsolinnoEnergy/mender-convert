@@ -30,7 +30,7 @@ OEMSVERSION=`sudo apt list --installed | grep openems | grep -o "openems-.*[0-9]
 if [[ -z ${OEMSVERSION} ]]; then
     OEMSVERION="not installed"
 fi
-echo OemsVersion=`sudo apt list --installed | grep openems | grep -o "openems-.*[0-9]"`
+echo OemsVersion=${OEMSVERSION}
 
 # get Openems Project Tag
 echo OemsProject="not implemented yet"
