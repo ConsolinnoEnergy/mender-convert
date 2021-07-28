@@ -156,7 +156,8 @@ if [ -z "${DEPLOY_IMAGE_NAME}" ]; then
     image_name="${temp_img_name%.*}"
 
     # Add device types to the filename and replaces whitespace with + to seperate device types.
-    image_name="${image_name}-$(sed 's| |+|g' <<< $device_type)-mender"
+    # A. Pietsch: Change Filename (removed -devicetype- because its added in pigen)
+    image_name="${image_name}-mender"
 else
     # User has choosen custom filename in config file
     image_name=$DEPLOY_IMAGE_NAME
