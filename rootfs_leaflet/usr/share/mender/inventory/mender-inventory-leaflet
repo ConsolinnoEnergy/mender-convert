@@ -24,7 +24,7 @@
 
 
 
-# This script collects Leaflet Base software Inventory Data for Mender.io  
+# This script collects Leaflet Inventory Data for Mender.io  
 
 
 # Get Base Software Version
@@ -38,3 +38,15 @@ IP=`cat /usr/etc/LeafletBaseSoftware/Leaflet.conf | grep -F "IP" |grep  -o -E "(
 Port=`cat /usr/etc/LeafletBaseSoftware/Leaflet.conf | grep -F "Port" | grep  -o -E "[0-9]{4}"`
 
 echo ModbusIp=${IP}:${Port}
+
+# get Openems Version
+OEMSVERSION=`sudo apt list --installed | grep openems | grep -o "openems-.*[0-9]"`
+
+if [[ -z ${OEMSVERSION} ]]; then
+    OEMSVERSION="not installed"
+fi
+echo OemsVersion=${OEMSVERSION}
+
+
+# Load Inventory List from Data partition
+cat /data/leaflet/Inventory.list
