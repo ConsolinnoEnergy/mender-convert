@@ -1,0 +1,14 @@
+remove_leaflet_configure() {
+    log_info "Removing leaflet configure from Base Image."
+    # run_and_log_cmd "sudo rm -rf work/usr/bin/leaflet-configure"
+    # run_and_log_cmd "sudo rm -rf work/usr/bin/leaflet-wizzard"
+    # run_and_log_cmd "sudo rm -rf work/etc/profile.d/02_launchwizzard.sh"
+    # run_and_log_cmd "sudo rm -rf work/etc/systemd/system/leaflet-configure.service"
+    # run_and_log_cmd "sudo rm -rf work/etc/systemd/system/multi-user.target.wants/leaflet-configure.service"
+    run_and_log_cmd "sudo rm -rf work/.notconfigured"
+
+}
+PLATFORM_MODIFY_HOOKS+=(remove_leaflet_configure)
+
+
+/.notconfigured
