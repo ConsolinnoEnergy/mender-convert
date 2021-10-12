@@ -11,4 +11,4 @@ remove_leaflet_configure() {
 PLATFORM_MODIFY_HOOKS+=(remove_leaflet_configure)
 
 
-/.notconfigured
+
