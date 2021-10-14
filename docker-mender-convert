@@ -40,6 +40,7 @@ docker run \
   -v /dev:/dev \
   -v /lib/modules:/lib/modules:ro \
   --env MENDER_ARTIFACT_NAME=${MENDER_ARTIFACT_NAME} \
+  --env DEPLOY_IMAGE_NAME=${DEPLOY_IMAGE_NAME} \
   --env MENDER_CONVERT_VERSION=${MENDER_CONVERT_VERSION} \
   --env MENDER_CONVERT_LOG_FILE=logs/${LOG_FILE} \
   $IMAGE_NAME "$@"

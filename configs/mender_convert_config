@@ -81,7 +81,7 @@ MENDER_DEVICE_TYPE=""
 # If no DEPLOY_IMAGE_NAME is defined the filenames will be a combination off
 # the date and the names of all DEVICE_TYPES.
 # These will be seperated with a +.
-DEPLOY_IMAGE_NAME=""
+#DEPLOY_IMAGE_NAME=""
 
 # The partition scheme to use for the converted image.
 # To override set this to "gpt" or "dos" (the scheme names used by fdisk and partx).
