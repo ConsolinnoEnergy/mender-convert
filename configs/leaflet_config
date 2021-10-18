@@ -21,7 +21,7 @@ MENDER_ADDON_CONFIGURE_INSTALL="y"
 
 
 
-MENDER_COMPRESS_DISK_IMAGE="none"
+#MENDER_COMPRESS_DISK_IMAGE="none"
 
 
 source configs/raspberrypi_config
