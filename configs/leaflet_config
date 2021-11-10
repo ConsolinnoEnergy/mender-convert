@@ -25,3 +25,10 @@ MENDER_ADDON_CONFIGURE_INSTALL="y"
 
 
 source configs/raspberrypi_config
+
+
+remove_mender_inventory_geo() {
+    log_info "Removing mender_inventory_geo from Base Image."
+    run_and_log_cmd "sudo rm -rf work/rootfs//usr/share/mender/inventory/mender-inventory-geo"
+}
+PLATFORM_MODIFY_HOOKS+=(remove_mender_inventory_geo)
