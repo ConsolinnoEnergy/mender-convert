@@ -13,6 +13,9 @@ IMAGE_OVERHEAD_FACTOR=1.0
 # Best compression there is!
 MENDER_COMPRESS_DISK_IMAGE=lzma
 
+# MEN-4256: Do not install the mender-client by default in our images
+MENDER_CLIENT_INSTALL="n"
+
 #
 # Resize the data partition to fill the remaining space, using parted, with systemd
 #
@@ -46,3 +49,18 @@ EOF
 }
 
 PLATFORM_MODIFY_HOOKS+=(grow_data_partition)
+
+#
+# Allow APT Suite change in the release info
+#
+# Upstream repository http://raspbian.raspberrypi.org/raspbian has changed buster
+# release suite from "stable" to "oldstable". The following configuration option
+# allows APT to update without user interaction.
+# This is the default un newer versions of apt, see:
+#   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=931566
+#
+function apt_allow_release_change_suite() {
+    run_and_log_cmd "echo 'Acquire::AllowReleaseInfoChange::Suite \"true\";' \
+                     | sudo tee work/rootfs/etc/apt/apt.conf.d/99release-change-suite"
+}
+PLATFORM_MODIFY_HOOKS+=(apt_allow_release_change_suite)
