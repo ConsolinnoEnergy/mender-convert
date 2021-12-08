@@ -7,7 +7,7 @@ remove_leaflet_configure() {
     # run_and_log_cmd "sudo rm -rf work/etc/systemd/system/multi-user.target.wants/leaflet-configure.service"
     run_and_log_cmd "sudo rm -rf work/rootfs/.notconfigured"
 }
-PLATFORM_MODIFY_HOOKS+=(remove_leaflet_configure)
+#PLATFORM_MODIFY_HOOKS+=(remove_leaflet_configure)
 
 
 
