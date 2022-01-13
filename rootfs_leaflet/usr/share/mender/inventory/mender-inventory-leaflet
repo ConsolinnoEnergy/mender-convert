@@ -34,8 +34,8 @@ echo LbsVersion=`sudo apt-cache policy leafletbs-app | grep -F "Installed: "| gr
 #cat /usr/etc/LeafletBaseSoftware/Leaflet.conf | grep Location=*
 
 # get Modbus Ip
-IP=`/usr/etc/leafletbs/leaflet.conf | grep -F "IP" |grep  -o -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`
-Port=`/usr/etc/leafletbs/leaflet.conf | grep -F "Port" | grep  -o -E "[0-9]{4}"`
+IP=`cat /usr/etc/leafletbs/leaflet.conf | grep -F "IP" |grep  -o -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`
+Port=`cat /usr/etc/leafletbs/leaflet.conf | grep -F "Port" | grep  -o -E "[0-9]{4}"`
 
 echo ModbusIp=${IP}:${Port}
 

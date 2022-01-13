@@ -29,6 +29,27 @@ source configs/raspberrypi_config
 
 remove_mender_inventory_geo() {
     log_info "Removing mender_inventory_geo from Base Image."
-    run_and_log_cmd "sudo rm -rf work/rootfs//usr/share/mender/inventory/mender-inventory-geo"
+    run_and_log_cmd "sudo rm -rf work/rootfs/usr/share/mender/inventory/mender-inventory-geo"
 }
 PLATFORM_MODIFY_HOOKS+=(remove_mender_inventory_geo)
+
+
+mender_create_artifact() {
+    local -r device_types="${1}"
+    local -r artifact_name="${2}"
+    local -r image_name="${3}"
+    local -r all_device_types="$(for device_type in $device_types; do echo " --device-type $device_type"; done)"
+
+    mender_artifact=deploy/${image_name}.mender
+    log_info "Writing Leafletpi Mender artifact to: ${mender_artifact}"
+    log_info "This can take up to 20 minutes depending on which compression method is used"
+
+    run_and_log_cmd "mender-artifact --compression ${MENDER_ARTIFACT_COMPRESSION} \
+      write rootfs-image \
+      --file work/rootfs.img \
+      --output-path ${mender_artifact} \
+      --artifact-name ${artifact_name} \
+      --software-name ${SOFTWARE_NAME} \
+      --software-version ${SOFTWARE_VERSION} \
+      ${all_device_types}"
+}
