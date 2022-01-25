@@ -48,8 +48,11 @@ fi
 echo OemsVersion=${OEMSVERSION}
 
 
-# Load Inventory List from Data partition
-cat /data/leaflet/Inventory.list
+# Load Inventory List from Data partition (lines starting with # will not be printed)
+cat /data/leaflet/Inventory.list | grep -v '^#.*'
+
+# Base Image Version
+cat /etc/leaflet/leaflet.info 
 
 #Load Wan Info
 waninfo
