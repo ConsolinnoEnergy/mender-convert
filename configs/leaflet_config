@@ -26,14 +26,6 @@ MENDER_ADDON_CONFIGURE_INSTALL="y"
 
 source configs/raspberrypi_config
 
-
-remove_mender_inventory_geo() {
-    log_info "Removing mender_inventory_geo from Base Image."
-    run_and_log_cmd "sudo rm -rf work/rootfs/usr/share/mender/inventory/mender-inventory-geo"
-}
-PLATFORM_MODIFY_HOOKS+=(remove_mender_inventory_geo)
-
-
 mender_create_artifact() {
     local -r device_types="${1}"
     local -r artifact_name="${2}"
@@ -53,3 +45,67 @@ mender_create_artifact() {
       --software-version ${SOFTWARE_VERSION} \
       ${all_device_types}"
 }
+
+# Hooks
+R="work/rootfs"
+
+remove_mender_inventory_geo() {
+    log_info "Removing mender_inventory_geo from Base Image."
+    run_and_log_cmd "sudo rm -rf ${R}/usr/share/mender/inventory/mender-inventory-geo"
+}
+PLATFORM_MODIFY_HOOKS+=(remove_mender_inventory_geo)
+
+
+function createBindMount() {
+    log_info "Create bind mount to data for /data${1} --> ${1}"
+
+    # Create the mount point in /data
+    mkdir -p ${R}/data${1}
+
+    # Copy initial file if present to new location
+    rsync -aHAXx  ${R}${1}/* ${R}/data${1} || true
+
+    # Clean up mount point files
+    rm -r ${R}${1}/* || true
+
+    # Make fstab entry
+    echo "/data${1}		${1}		none		bind		0	0" >> ${R}/etc/fstab
+}
+
+function pritifyFstab() {
+    src="${R}/etc/fstab"
+
+    tmp1="$(mktemp)"
+    tmp2="$(mktemp)"
+
+    # Filter out comments and pipe them through column with -e
+    # Save to tmp1
+    sed 's/^[ \t]*#.*//' "$src" | column -et > "$tmp1"
+
+    # Filter out tab lines and save to tmp2
+    sed 's/^[ \t]*[^#].*//' "$src" > "$tmp2"
+
+    # merge
+    paste -d'\0' "$tmp1" "$tmp2" > ${R}/etc/fstab
+
+    rm "$tmp1" "$tmp2"
+}
+
+create_bind_mounts() {
+    log_info "Setting up Persistant Data"
+
+    # Set up all data which should be persistent over updates
+    createBindMount /var/log
+    createBindMount /var/lib/logrotate
+    createBindMount /var/lib/NetworkManager
+    createBindMount /var/lib/nymea
+    createBindMount /var/lib/systemd
+    createBindMount /etc/nymea
+#
+    pritifyFstab
+
+    log_info "Final fstab:"
+    cat ${R}/etc/fstab
+
+}
+PLATFORM_MODIFY_HOOKS+=(create_bind_mounts)
