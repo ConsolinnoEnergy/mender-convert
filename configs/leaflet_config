@@ -104,8 +104,26 @@ create_bind_mounts() {
 #
     pritifyFstab
 
-    log_info "Final fstab:"
+    log_info "Fstab:"
     cat ${R}/etc/fstab
 
 }
 PLATFORM_MODIFY_HOOKS+=(create_bind_mounts)
+
+
+tmp_ram_drives() {
+    log_info "Setting ram drives for tmp in fstab"
+
+    # Set up all data which should be persistent over updates
+
+    # Reduce write/read operations on Pi
+    echo "tmpfs    /var/tmp    tmpfs    defaults,noatime,nosuid,size=30m    0 0" >> ${R}/etc/fstab
+    echo "tmpfs    /tmp    tmpfs    defaults,noatime,nosuid,size=100m    0 0" >> ${R}/etc/fstab
+
+    pritifyFstab
+
+    log_info "Fstab:"
+    cat ${R}/etc/fstab
+
+}
+PLATFORM_MODIFY_HOOKS+=(tmp_ram_drives)
