@@ -40,7 +40,7 @@ Port=`cat /usr/etc/leafletbs/leaflet.conf | grep -F "Port" | grep  -o -E "[0-9]{
 echo ModbusIp=${IP}:${Port}
 
 # get Openems Version
-OEMSVERSION=`sudo apt list --installed | grep openems | grep -o "openems-.*[0-9]"`
+OEMSVERSION=`sudo apt-cache policy openems | grep -F "Installed: "| grep -o "[0-9].*"`
 
 if [[ -z ${OEMSVERSION} ]]; then
     OEMSVERSION="not installed"
@@ -52,7 +52,7 @@ echo OemsVersion=${OEMSVERSION}
 cat /data/leaflet/Inventory.list | grep -v '^#.*'
 
 # Base Image Version
-cat /etc/leaflet/leaflet.info 
+cat /etc/leaflet/leaflet.info | grep -v '^#.*'
 
 #Load Wan Info
 waninfo
