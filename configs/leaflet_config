@@ -53,7 +53,7 @@ remove_mender_inventory_geo() {
     log_info "Removing mender_inventory_geo from Base Image."
     run_and_log_cmd "sudo rm -rf ${R}/usr/share/mender/inventory/mender-inventory-geo"
 }
-PLATFORM_MODIFY_HOOKS+=(remove_mender_inventory_geo)
+#PLATFORM_MODIFY_HOOKS+=(remove_mender_inventory_geo)
 
 
 function createBindMount() {
