@@ -29,10 +29,10 @@
 
 # Get Base Software Version
 LBSVERSION=`dpkg-query --show | grep leafletbs-app | cut -f "2"`
-if [[ -z ${LbsVersion} ]]; then
+if [[ -z ${LBSVERSION} ]]; then
     LBSVERSION="not installed"
 fi
-echo LBSVersion=${LBSVERSION}
+echo lbs_version=${LBSVERSION}
 
 # get Modbus Conf File Location
 #cat /usr/etc/LeafletBaseSoftware/Leaflet.conf | grep Location=*
@@ -41,7 +41,7 @@ echo LBSVersion=${LBSVERSION}
 IP=`cat /usr/etc/leafletbs/leaflet.conf | grep -F "IP" |grep  -o -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`
 Port=`cat /usr/etc/leafletbs/leaflet.conf | grep -F "Port" | grep  -o -E "[0-9]{4}"`
 
-echo ModbusIp=${IP}:${Port}
+echo modbus_ip=${IP}:${Port}
 
 # get Openems Version
 OEMSVERSION=`dpkg-query --show | grep openems | cut -f "2"`
@@ -49,7 +49,7 @@ OEMSVERSION=`dpkg-query --show | grep openems | cut -f "2"`
 if [[ -z ${OEMSVERSION} ]]; then
     OEMSVERSION="not installed"
 fi
-echo OemsVersion=${OEMSVERSION}
+echo oems_version=${OEMSVERSION}
 
 
 # Load Inventory List from Data partition (lines starting with # will not be printed)
