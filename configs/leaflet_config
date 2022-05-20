@@ -1,0 +1,139 @@
+RASPBERRYPI_CONFIG="raspberrypi3"
+RASPBERRYPI_KERNEL_IMAGE="vmlinuz-5.4.83-v7-lpi"
+MENDER_KERNEL_IMAGETYPE="zImage"
+MENDER_DEVICE_TYPE="leafletpi"
+
+#DEPLOY_IMAGE_NAME="leafletpi_cems_test-3_3_3"
+
+#Partition sizes
+
+MENDER_STORAGE_TOTAL_SIZE_MB="7334"
+MENDER_BOOT_PART_SIZE_MB="256"
+MENDER_DATA_PART_SIZE_MB="128"
+IMAGE_ROOTFS_SIZE="-1"
+
+# ADDONS
+MENDER_ADDON_CONNECT_INSTALL="y"
+MENDER_ADDON_CONFIGURE_INSTALL="y"
+MENDER_CLIENT_VERSION="3.2.1"
+MENDER_ADDON_CONNECT_VERSION="2.0.1"
+
+#MENDER_COMPRESS_DISK_IMAGE="none"
+
+MENDER_COMPRESS_DISK_IMAGE=gzip
+MENDER_ARTIFACT_COMPRESSION="gzip"
+
+source configs/raspberrypi_config
+
+mender_create_artifact() {
+    local -r device_types="${1}"
+    local -r artifact_name="${2}"
+    local -r image_name="${3}"
+    local -r all_device_types="$(for device_type in $device_types; do echo " --device-type $device_type"; done)"
+
+    mender_artifact=deploy/${image_name}.mender
+
+    # Get Version and Name
+    ARTIFACT_NAME=$(echo ${mender_artifact} | cut -d '/' -f2 | cut -d '.' -f 1)
+    SOFTWARE_NAME=$(echo ${ARTIFACT_NAME} | cut -d '-' -f1)
+    SOFTWARE_VERSION=$(echo ${ARTIFACT_NAME} | cut -d '-' -f2)
+
+    log_info "Writing Leafletpi Mender artifact to: ${mender_artifact}"
+    log_info "mender_artifact_name: ${ARTIFACT_NAME}"
+    log_info "software_name:        ${SOFTWARE_NAME}"
+    log_info "software-version      ${SOFTWARE_VERSION}"
+    log_info "This can take up to 20 minutes depending on which compression method is used"
+
+
+    run_and_log_cmd "mender-artifact --compression ${MENDER_ARTIFACT_COMPRESSION} \
+      write rootfs-image \
+      --file work/rootfs.img \
+      --output-path ${mender_artifact} \
+      --artifact-name ${ARTIFACT_NAME} \
+      --software-name ${SOFTWARE_NAME} \
+      --software-version ${SOFTWARE_VERSION} \
+      ${all_device_types}"
+}
+
+# Hooks
+R="work/rootfs"
+
+remove_mender_inventory_geo() {
+    log_info "Removing mender_inventory_geo from Base Image."
+    run_and_log_cmd "sudo rm -rf ${R}/usr/share/mender/inventory/mender-inventory-geo"
+}
+#PLATFORM_MODIFY_HOOKS+=(remove_mender_inventory_geo)
+
+
+function createBindMount() {
+    log_info "Create bind mount to data for /data${1} --> ${1}"
+
+    # Create the mount point in /data
+    mkdir -p ${R}/data${1}
+
+    # Copy initial file if present to new location
+    rsync -aHAXx  ${R}${1}/* ${R}/data${1} || true
+
+    # Clean up mount point files
+    rm -r ${R}${1}/* || true
+
+    # Make fstab entry
+    echo "/data${1}		${1}		none		bind		0	0" >> ${R}/etc/fstab
+}
+
+function pritifyFstab() {
+    src="${R}/etc/fstab"
+
+    tmp1="$(mktemp)"
+    tmp2="$(mktemp)"
+
+    # Filter out comments and pipe them through column with -e
+    # Save to tmp1
+    sed 's/^[ \t]*#.*//' "$src" | column -et > "$tmp1"
+
+    # Filter out tab lines and save to tmp2
+    sed 's/^[ \t]*[^#].*//' "$src" > "$tmp2"
+
+    # merge
+    paste -d'\0' "$tmp1" "$tmp2" > ${R}/etc/fstab
+
+    rm "$tmp1" "$tmp2"
+}
+
+create_bind_mounts() {
+    log_info "Setting up Persistant Data"
+
+    # Set up all data which should be persistent over updates
+    createBindMount /var/log
+    createBindMount /var/lib/logrotate
+    createBindMount /var/lib/NetworkManager
+    createBindMount /var/lib/nymea
+    createBindMount /var/lib/systemd
+    createBindMount /etc/nymea
+#
+    pritifyFstab
+
+    log_info "Fstab:"
+    cat ${R}/etc/fstab
+
+}
+PLATFORM_MODIFY_HOOKS+=(create_bind_mounts)
+
+
+tmp_ram_drives() {
+    log_info "Setting ram drives for tmp in fstab"
+
+    # Set up all data which should be persistent over updates
+
+    # Reduce write/read operations on Pi
+    echo "tmpfs    /var/tmp    tmpfs    defaults,noatime,nosuid,size=30m    0 0" >> ${R}/etc/fstab
+    echo "tmpfs    /tmp    tmpfs    defaults,noatime,nosuid,size=100m    0 0" >> ${R}/etc/fstab
+
+    pritifyFstab
+
+    log_info "Fstab:"
+    cat ${R}/etc/fstab
+
+}
+PLATFORM_MODIFY_HOOKS+=(tmp_ram_drives)
+
