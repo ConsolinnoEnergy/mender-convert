@@ -55,8 +55,11 @@ RUN apt-get update && env DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # JSON power tool
     jq \
 # GRUB command line tools, primarily grub-probe
-    grub-common
-
+    grub-common \
+# A.Pietsch :
+    sed \
+    bsdmainutils
+    
 COPY --from=build /root/pxz/pxz /usr/bin/pxz
 
 # allow us to keep original PATH variables when sudoing
