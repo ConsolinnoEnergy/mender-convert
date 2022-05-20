@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -e
+
+# ADD CODE TO Safe Infos for rollback
+
+case "$STATE" in
+
+    NeedsArtifactReboot)
+        echo "No"
+        ;;
+
+    SupportsRollback)
+        echo "Yes"
+        ;;
+
+    ArtifactInstall)
+        # ADD CODE TO INSTALL 
+        ;;
+
+    ArtifactRollback)
+        # ADD CODE TO Roll back 
+        ;;
+esac
+
+exit 0

@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                                         #
+#  Copyright (C) 2019 -2020 Simon Stuerz <simon.stuerz@nymea.io>          #
+#                                                                         #
+#  This program is free software; you can redistribute it and/or          #
+#  modify it under the terms of the GNU General Public License            #
+#  as published by the Free Software Foundation; either version 2         #
+#  of the License, or (at your option) any later version.                 #
+#                                                                         #
+#  This program is distributed in the hope that it will be useful,        #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          #
+#  GNU General Public License for more details.                           #
+#                                                                         #
+#  You should have received a copy of the GNU General Public License      #
+#  along with guh. If not, see <http://www.gnu.org/licenses/>.            #
+#                                                                         #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+#------------------------------------------------------------------------------------------
+function usage() {
+  cat <<EOF
+
+This tool reads the WAN geo IP information from http://ip-api.com and caches them.
+
+The online fetched data will be parsed and cached in ${CACHE_DIR}.
+
+Usage: $(basename $0) [OPTIONS]
+
+OPTIONS:
+  -v, --verbose           Print output more verbose
+  -h, --help              Show this message
+
+EOF
+}
+
+#------------------------------------------------------------------------------------------
+# Main
+#------------------------------------------------------------------------------------------
+
+# Check Root
+if [ `whoami` != root ]; then
+    echo "Please run this script as root or using sudo"
+    exit 1
+fi
+
+VERBOSE=false
+REQUEST_URL="http://ip-api.com/json/?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,zip,lat,lon,timezone,query"
+CACHE_DIR="/var/cache/$(basename $0)"
+RESPONSE_CACHE="${CACHE_DIR}/server-response"
+DATA_CACHE="${CACHE_DIR}/data"
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -v | --verbose )
+            VERBOSE=true;;
+        -h | --help )
+            usage && exit 0;;
+        * )
+            usage && exit 1;;
+    esac
+    shift
+done
+
+# Check if the URL is reachable
+if ${VERBOSE}; then echo "Get request on ${REQUEST_URL}"; fi
+if ! wget -q -O- ${REQUEST_URL} >/dev/null 2>&1; then
+    echo "Error: could not contact the geo ip server. The system might be offline." >&2
+    exit 1
+fi
+
+# Make sure the cache folder exists
+if [ ! -d ${CACHE_DIR} ]; then
+    if ${VERBOSE}; then echo "Create cache directory ${CACHE_DIR}"; fi
+    mkdir -p ${CACHE_DIR}
+fi
+
+# Fetch the geo IP data information
+if ${VERBOSE}; then echo "Download information..."; fi
+wget -q -O- ${REQUEST_URL} > ${RESPONSE_CACHE}
+
+# Parse the data and cache them
+WANIP=$(cat ${RESPONSE_CACHE} | jq '.query' | tr -d '"')
+TIMEZONE=$(cat ${RESPONSE_CACHE} | jq '.timezone' | tr -d '"')
+CONTINENT_NAME=$(cat ${RESPONSE_CACHE} | jq '.continent' | tr -d '"')
+CONTINENT_CODE=$(cat ${RESPONSE_CACHE} | jq '.continentCode' | tr -d '"')
+COUNTRY_NAME=$(cat ${RESPONSE_CACHE} | jq '.country' | tr -d '"')
+COUNTRY_CODE=$(cat ${RESPONSE_CACHE} | jq '.countryCode' | tr -d '"')
+REGION_NAME=$(cat ${RESPONSE_CACHE} | jq '.regionName' | tr -d '"')
+REGION_CODE=$(cat ${RESPONSE_CACHE} | jq '.region' | tr -d '"')
+CITY=$(cat ${RESPONSE_CACHE} | jq '.city' | tr -d '"')
+LATITUDE=$(cat ${RESPONSE_CACHE} | jq '.lat' | tr -d '"')
+LONGITUDE=$(cat ${RESPONSE_CACHE} | jq '.lon' | tr -d '"')
+
+# Reset the data cache for the geo location
+echo "wan-ip=${WANIP}" > ${DATA_CACHE}
+echo "wan-timezone=${TIMEZONE}" >> ${DATA_CACHE}
+echo "wan-continent=${CONTINENT_NAME}" >> ${DATA_CACHE}
+echo "wan-continent-code=${CONTINENT_CODE}" >> ${DATA_CACHE}
+echo "wan-country=${COUNTRY_NAME}" >> ${DATA_CACHE}
+echo "wan-country-code=${COUNTRY_CODE}" >> ${DATA_CACHE}
+echo "wan-region=${REGION_NAME}" >> ${DATA_CACHE}
+echo "wan-region-code=${REGION_CODE}" >> ${DATA_CACHE}
+echo "wan-city=${CITY}" >> ${DATA_CACHE}
+echo "wan-longitude=${LONGITUDE}" >> ${DATA_CACHE}
+echo "wan-latitude=${LATITUDE}" >> ${DATA_CACHE}
+
+if ${VERBOSE}; then cat ${DATA_CACHE}; fi
+
+exit 0
+
